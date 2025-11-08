@@ -1,0 +1,12 @@
+{
+  "$GMShader":"",
+  "%Name":"shd_Outline_Color",
+  "name":"shd_Outline_Color",
+  "parent":{
+    "name":"Shaders",
+    "path":"folders/Other/Shaders.yy",
+  },
+  "resourceType":"GMShader",
+  "resourceVersion":"2.0",
+  "type":1,
+}
