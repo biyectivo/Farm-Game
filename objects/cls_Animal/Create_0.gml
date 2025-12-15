@@ -98,6 +98,7 @@ self.fsm.add("hit", {
 self.fsm.add("die", {
 	enter: function() {
 		self.visible = false;
+		if (Game.options.audio.sounds_enabled)		audio_play_sound(self.audio, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
 		if (self.gives != "") {
 			//obj_Player.inventory_add(self.gives);
 			var _dx = irandom_range(-5,5);

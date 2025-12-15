@@ -28,6 +28,7 @@
 			self.__source_blendmode = bm_one;
 			self.__dest_blendmode = bm_inv_src_alpha;
 			self.__force_blendmode = false;
+			self.__interactable = false;
 		#endregion
 		#region Setters/Getters
 			/// @method				getRawText()
@@ -42,14 +43,19 @@
 				return self.__text;
 			}
 			
-			/// @method				setText(_text)
+			/// @method				setText(_text,  [_set_all_states])
 			/// @description		Sets the Scribble text string of the UIText.
 			/// @param				{String}	_text	The Scribble string to assign to the UIText.			
+			/// @param				{Bool}		[_set_all_states]		whether to set all states at the same time, default=false
 			/// @return				{UIText}	self
-			self.setText = function(_text)	{
+			self.setText = function(_text, _set_all_states=false)	{
 				self.__text = _text;
 				if (!is_undefined(self.__binding)) {
 					self.__updateBoundVariable(_text);
+				}
+				if (_set_all_states) {
+					self.setTextMouseover(_text);
+					self.setTextClick(_text);
 				}
 				return self;
 			}
@@ -191,7 +197,7 @@
 			/// @method			setTextFormat(_text_format, [_set_all_states])
 			/// @description	Sets the value of the Scribble string used for the starting format of the text
 			/// @param			{String}	_text_format			the Scribble format string to set
-			/// @param			{String		[_set_all_states]		whether to set all states at the same time, default=false
+			/// @param			{Bool}		[_set_all_states]		whether to set all states at the same time, default=false
 			/// @return			{UIText}	self
 			self.setTextFormat = function(_text_format, _set_all_states=false) {
 				self.__text_format = _text_format;
@@ -234,7 +240,33 @@
 				return self;
 			}
 
-
+			/// @method			getTextWidth()
+			/// @description	Gets the text width of the element.
+			///					Note that getDimensions().width will return 0 for UIText elements.
+			/// @return			{Real}	the Scribble text width of the text element bbox
+			self.getTextWidth = function() {
+				var _fmt = self.__text_format;
+				if (self.__events_fired[UI_EVENT.MOUSE_OVER])	{					
+					_fmt =	self.__events_fired[UI_EVENT.LEFT_HOLD] ? self.__text_format_click : self.__text_format_mouseover;
+				}
+				var _txt = UI_TEXT_RENDERER(_fmt + self.getText());
+				if (self.getMaxWidth() > 0)		_txt.wrap(self.getMaxWidth());
+				return _txt.get_width();
+			}
+			
+			/// @method			getTextHeight()
+			/// @description	Gets the text height of the element.
+			///					Note that getDimensions().height will return 0 for UIText elements.
+			/// @return			{Real}	the Scribble text height of the text element bbox
+			self.getTextHeight = function() {
+				var _fmt = self.__text_format;
+				if (self.__events_fired[UI_EVENT.MOUSE_OVER])	{					
+					_fmt =	self.__events_fired[UI_EVENT.LEFT_HOLD] ? self.__text_format_click : self.__text_format_mouseover;
+				}
+				var _txt = UI_TEXT_RENDERER(_fmt + self.getText());
+				if (self.getMaxWidth() > 0)		_txt.wrap(self.getMaxWidth());
+				return _txt.get_height();
+			}
 			
 		#endregion
 		#region Methods

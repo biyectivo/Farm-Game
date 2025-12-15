@@ -15,8 +15,22 @@ switch(room) {
 			self.depth = -self.bbox_bottom;
 		}
 		
-		if (InputPressed(INPUT_VERB.FULLSCREEN))		Camera.toggle_fullscreen();
-		if (InputPressed(INPUT_VERB.INVENTORY))			show_debug_message(obj_Player.inventory);
+		if (InputPressed(INPUT_VERB.FULLSCREEN))		{
+			self.options.video.fullscreen = !self.options.video.fullscreen;
+			Camera.toggle_fullscreen();
+		}
+		
+		if (InputPressed(INPUT_VERB.INVENTORY))	 {
+			ui_get("Panel_Inventory").setVisible(!ui_get("Panel_Inventory").getVisible());
+			if (Game.options.audio.sounds_enabled) {
+				var _sound = ui_get("Panel_Inventory").getVisible() ? snd_Open : snd_Close;
+				audio_play_sound(_sound, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
+			}
+		}
+		if (InputPressed(INPUT_VERB.PAUSE))	{
+			if (self.fsm.get_current_state_name() == "Playing")		self.pause();
+			else													self.resume();
+		}
 
 		if (InputPressed(INPUT_VERB.TIME_SPEEDUP)) {
 			var _period = time_source_get_period(self.ts);

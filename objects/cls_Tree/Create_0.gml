@@ -25,6 +25,7 @@ self.fsm.add("idle", {
 self.fsm.add("hit", {
 	enter: function() {
 		self.am.set(self.fsm.get_current_state_name(), 0);		
+		if (Game.options.audio.sounds_enabled)		audio_play_sound(snd_Chop, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
 	},
 	step: function() {
 		

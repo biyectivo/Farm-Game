@@ -1,7 +1,7 @@
 randomize();
 self.seed = irandom_range(1,999999999);
 random_set_seed(self.seed);
-//self.seed = 344574555;
+//self.seed = 575407445;
 show_debug_message($"Seed: {self.seed}");
 
 self.fsm = new StateMachine();
@@ -86,6 +86,11 @@ self.advance_clock = function() {
 		self.spawn(obj_Spawn_Animals, cls_Animal, [obj_Sheep], 2, 4, true);
 	}
 	
+	// Update GUI
+	if (ui_exists("Sprite_TimeOfDay")) {
+		var _angle = self.hour/24 * 360 - 90;
+		ui_get("Sprite_TimeOfDay").setAngle(_angle);
+	}
 };
 
 self.ts = time_source_create(time_source_game, self.hour_length_frames, time_source_units_frames, self.advance_clock, [], -1, time_source_expire_nearest);
@@ -119,3 +124,77 @@ self.day_overlay = [
 ];
 
 draw_set_font(fnt_UI);
+
+self.progress_indicator = function() {
+	var _period = time_source_get_period(self.ts);
+	return (_period == self.hour_length_frames_speedup) ? "[arrow_right]" : "";
+};
+
+self.pause_menu_y = -700;
+self.pause = function() {
+	animate("Pause_Menu_Animation", Game, "pause_menu_y", 0, 30, curve_ElasticInv, false, false,,,time_source_global);
+	Game.fsm.trigger("Paused");
+	time_source_pause(time_source_game);
+	ui_get("Panel_Pause").setVisible(true);
+};
+
+self.resume = function() {
+	animate("Pause_Menu_Animation", Game, "pause_menu_y", -700, 30, curve_Elastic, false, false,[{time: 1, callback: function() {
+		ui_get("Panel_Pause").setVisible(false);
+		Game.fsm.trigger("Playing");
+		time_source_resume(time_source_game);	
+	}}],,time_source_global);
+};
+
+self.player_hair_options = ["bowlhair", "curlyhair", "longhair", "mophair", "shorthair", "spikeyhair"];
+self.player_outfit_options = ["classic", "modern", "sunny", "lilac"];
+self.options = {
+	game: {
+		player_hair_index: 2,
+		player_outfit_index: 0,
+	},
+	video: {
+		fullscreen: false,
+	},
+	audio: {
+		music_enabled: true,
+		sounds_enabled: true,
+		music_volume: 0.4,
+		sounds_volume: 1.0,
+	},
+};
+
+self.surf = undefined;
+self.update_surf = function() {
+	surface_set_target(self.surf);
+	draw_clear_alpha(c_black, 0);
+	pal_swap_set(spr_PalSwap, obj_Player.outfit, false);
+	draw_sprite_ext(asset_get_index(string($"base_idle")), 0, 125, 200, 6, 6, 0, c_white, 1);		
+	pal_swap_reset();
+	draw_sprite_ext(asset_get_index(string($"{obj_Player.hairstyle}_idle")), 0, 125, 200, 6, 6, 0, c_white, 1);			
+	surface_reset_target();
+}
+
+self.hover_sound = function() {
+	if (Game.options.audio.sounds_enabled)	audio_play_sound(snd_Hover, 50, false);
+}
+
+self.click_sound = function() {
+	if (Game.options.audio.sounds_enabled)	audio_play_sound(snd_Click, 50, false);
+}
+
+self.typist = scribble_typist();
+self.typist.in(0.5, 0);
+self.typist.function_on_complete(function() {
+	call_later(60*3, time_source_units_frames, function() {
+		self.typist.reset();
+		ui_get("Panel_NPC_Textbox").setVisible(false);
+	});
+});
+
+self.set_text_textbox = function(_text) {
+	ui_get("Text_NPC_Textbox").setText(_text);
+	var _w = ui_get("Text_NPC_Textbox").getTextWidth()+40;
+	ui_get("Panel_NPC_Textbox").setDimensions(,,_w).setVisible(true);
+	ui_get("Group_NPC_Textbox").setDimensions(,,_w - 20);
+}

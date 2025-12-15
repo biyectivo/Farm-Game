@@ -85,7 +85,7 @@ function ui_get_panels() {
 	
 /// @function				ui_get_focused_panel()
 /// @description			gets the reference to the currently focused Panel widget, or -1 if no panels exist.
-/// @return					{UIPanel}	The reference to the currently focus Panel
+/// @return					{UIPanel}	The reference to the currently focused Panel
 function ui_get_focused_panel() {
 	__auto_create_ui_object();
 	return UI.getFocusedPanel();
@@ -93,9 +93,9 @@ function ui_get_focused_panel() {
 	
 /// @function				ui_set_focused_panel(_ID)
 /// @description			sets the specified Panel as focused
-/// @param					{String}	_ID		The Widget string ID	
+/// @param					{String}	_ID		the Panel to be focused
 /// @return					{UI}	self
-function ui_set_focused_panel(_ID) {				
+function ui_set_focused_panel(_ID) {
 	__auto_create_ui_object();
 	return UI.setFocusedPanel(_ID);
 }
@@ -132,4 +132,13 @@ function ui_get_currently_dragged_widget() {
 function ui_set_camera(_camera_id) {				
 	__auto_create_ui_object();
 	UI.__camera_id = _camera_id;
+}
+
+
+/// @function				ui_set_cursor(_cursor_id)
+/// @description			sets the cursor to a specific sprite or cursor constant
+/// @param					{Asset.GMSprite/Real}	_cursor_id		the sprite reference for the sprite, or a cursor constant (cr_)
+function ui_set_cursor(_cursor_id) {				
+	__auto_create_ui_object();
+	UI.__setUICursor(_cursor_id)
 }

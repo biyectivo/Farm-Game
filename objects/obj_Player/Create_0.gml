@@ -2,40 +2,52 @@ self.stats = {
 	spd: 2,
 };
 
-self.hairstyle = "longhair";
+self.money = 0;
+self.hairstyle = Game.player_hair_options[Game.options.game.player_hair_index];
+self.outfit = Game.options.game.player_outfit_index;
 
 self.tools = ["dig", "watering", "axe", "plant"];
 self.tool_object = undefined;
 self.current_tool = 0;
 
+self.currently_dragged_item = undefined;
 self.inventory_max_size = 4;
-self.inventory = []; // {item_name, qty}
+self.inventory = array_create(self.inventory_max_size, undefined);
+
 self.inventory_add = function(_item_name, _qty=1) {
 	var _idx = array_find_index(self.inventory, method({_item_name}, function(_elem, _i) {
-		return _elem.item_name == _item_name;
+		return _elem != undefined && _elem.item_name == _item_name;
 	}));
 	if (_idx != -1) {
 		self.inventory[_idx].qty += _qty;
-		return true;
-	}
-	else if (array_length(self.inventory) < self.inventory_max_size) {
-		array_push(self.inventory, {item_name: _item_name, qty: _qty});
+		if (Game.options.audio.sounds_enabled)		audio_play_sound(snd_Pickup, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
 		return true;
 	}
 	else {
-		return false;
+		var _first_empty_slot = 0;
+		while (_first_empty_slot < self.inventory_max_size) {
+			if (self.inventory[_first_empty_slot] == undefined)	break;
+			else _first_empty_slot++;
+		}
+		if (_first_empty_slot < self.inventory_max_size) {
+			self.inventory[_first_empty_slot] = {item_name: _item_name, qty: _qty};
+			if (Game.options.audio.sounds_enabled)		audio_play_sound(snd_Pickup, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }
 
 self.inventory_remove = function(_item_name, _qty=999999999) {
 	var _idx = array_find_index(self.inventory, method({_item_name}, function(_elem, _i) {
-		return _elem.item_name == _item_name;
+		return _elem != undefined && _elem.item_name == _item_name;
 	}));
 	if (_idx != -1) {
 		self.inventory[_idx].qty = max(0, self.inventory[_idx].qty - _qty);
 		if (self.inventory[_idx].qty == 0) {
-			array_delete(self.inventory, _idx, 1);
-			
+			self.inventory[_idx] = undefined;
 		}
 		return true;
 	}
@@ -167,6 +179,7 @@ self.fsm.add("axe", {
 		self.am_hair.set(self.fsm.get_current_state_name(), string(self.facing));
 		self.tool_object = instance_create_layer(self.x, self.y, "lyr_Instances", obj_Tool, {sprite_index: tools_axe});
 		self.tool_object.image_xscale= self.image_xscale;
+		if (Game.options.audio.sounds_enabled)		audio_play_sound(snd_Axe, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
 	},
 	step: function() {
 		self.tool_object.image_index = self.image_index;
@@ -222,6 +235,7 @@ self.fsm.add("dig", {
 		self.am_hair.set(self.fsm.get_current_state_name(), string(self.facing));
 		self.tool_object = instance_create_layer(self.x, self.y, "lyr_Instances", obj_Tool, {sprite_index: tools_dig});
 		self.tool_object.image_xscale= self.image_xscale;
+		if (Game.options.audio.sounds_enabled)		audio_play_sound(snd_Dig, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
 	},
 	step: function() {
 		with (self.tool_object) {
@@ -277,6 +291,7 @@ self.fsm.add("walk", {
 	},
 	step: function() {
 		self.walk();
+		if (Game.options.audio.sounds_enabled && !audio_is_playing(snd_Footsteps))		audio_play_sound(snd_Footsteps, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
 	},
 	draw_overlay: function() {
 	},
@@ -290,6 +305,7 @@ self.fsm.add("watering", {
 		self.tool_object = instance_create_layer(self.x, self.y, "lyr_Instances", obj_Tool, {sprite_index: tools_watering});
 		self.tool_object.image_xscale= self.image_xscale;
 		self.action_done = false;
+		if (Game.options.audio.sounds_enabled)		audio_play_sound(snd_Water, 50, false, Game.options.audio.sounds_volume,, 0.95, 1.02);
 	},
 	step: function() {
 		self.tool_object.image_index = self.image_index;
@@ -357,31 +373,31 @@ self.fsm.add_transition("walk", "idle", function() {
 	return !InputCheckMany([INPUT_VERB.UP, INPUT_VERB.DOWN, INPUT_VERB.LEFT, INPUT_VERB.RIGHT]);
 });
 self.fsm.add_transition(["idle", "walk"], "dig", function() {
-	return self.tools[self.current_tool] == "dig" && InputPressed(INPUT_VERB.USE_TOOL);
+	return !ui_is_interacting() && self.tools[self.current_tool] == "dig" && InputPressed(INPUT_VERB.USE_TOOL);
 });
 self.fsm.add_transition("dig", "idle", function() {
 	return self.am.has_ended();
 });
 self.fsm.add_transition(["idle", "walk"], "axe", function() {
-	return self.tools[self.current_tool] == "axe" && InputPressed(INPUT_VERB.USE_TOOL);
+	return !ui_is_interacting() && self.tools[self.current_tool] == "axe" && InputPressed(INPUT_VERB.USE_TOOL);
 });
 self.fsm.add_transition("axe", "idle", function() {
 	return self.am.has_ended();
 });
 self.fsm.add_transition(["idle", "walk"], "watering", function() {
-	return self.tools[self.current_tool] == "watering" && InputPressed(INPUT_VERB.USE_TOOL);
+	return !ui_is_interacting() && self.tools[self.current_tool] == "watering" && InputPressed(INPUT_VERB.USE_TOOL);
 });
 self.fsm.add_transition("watering", "idle", function() {
 	return self.am.has_ended();
 });
 self.fsm.add_transition(["idle", "walk"], "carry", function() {
-	return self.tools[self.current_tool] == "carry" && InputPressed(INPUT_VERB.USE_TOOL);
+	return !ui_is_interacting() && self.tools[self.current_tool] == "carry" && InputPressed(INPUT_VERB.USE_TOOL);
 });
 self.fsm.add_transition("carry", "idle", function() {
 	return InputPressed(INPUT_VERB.USE_TOOL);
 });
 self.fsm.add_transition(["idle", "walk"], "plant", function() {
-	return self.tools[self.current_tool] == "plant" && InputPressed(INPUT_VERB.USE_TOOL);
+	return !ui_is_interacting() && self.tools[self.current_tool] == "plant" && InputPressed(INPUT_VERB.USE_TOOL);
 });
 self.fsm.add_transition("plant", "idle", function() {
 	return self.am.has_ended();

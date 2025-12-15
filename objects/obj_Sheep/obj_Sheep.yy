@@ -28,7 +28,9 @@
   "physicsShape":1,
   "physicsShapePoints":[],
   "physicsStartAwake":true,
-  "properties":[],
+  "properties":[
+    {"$GMObjectProperty":"v2","%Name":"audio","filters":[],"listItems":[],"multiselect":false,"name":"audio","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resource":{"name":"snd_Sheep","path":"sounds/snd_Sheep/snd_Sheep.yy",},"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"snd_Sheep","varType":5,},
+  ],
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,

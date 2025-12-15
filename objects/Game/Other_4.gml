@@ -7,6 +7,11 @@ switch(room) {
 	case room_Game:
 		layer_set_visible(layer_get_id("lyr_Tile_Collision"), false);
 		
+		if (Game.options.audio.music_enabled) {
+			audio_play_sound(snd_Music, 100, true);
+			audio_sound_gain(snd_Music, Game.options.audio.music_volume);
+		}
+		
 		// Spawn trees
 		self.spawn(obj_Spawn_Trees, cls_Tree, [obj_Tree_Pine, obj_Tree_Round], 15, 10, false);
 		

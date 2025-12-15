@@ -21,13 +21,14 @@
 			self.__starting_frame = _starting_frame;
 			self.__image = _starting_frame;
 			self.__animation_step = 1;
-			self.__animation_speed = sprite_get_speed(_sprite) > 0 ? round(game_get_speed(gamespeed_fps) / sprite_get_speed(_sprite)) : 0;
-			self.__animation_length = sprite_get_number(_sprite);
+			self.__animation_speed = _sprite == undefined ? 0 : (sprite_get_speed(_sprite) > 0 ? round(game_get_speed(gamespeed_fps) / sprite_get_speed(_sprite)) : 0);
+			self.__animation_length = _sprite == undefined ? 0 : sprite_get_number(_sprite);
 			self.__time_source = noone;
 			self.__time_source_parent = _time_source_parent;
 			self.__num_frames = 0;
 			self.__use_nineslice = true;
 			self.__angle = 0;
+			self.__interactable = false;
 		#endregion
 		#region Setters/Getters
 			
@@ -176,7 +177,13 @@
 					else {
 						var _original_width = sprite_get_width(self.__sprite);
 						var _original_height = sprite_get_height(self.__sprite);
-						draw_sprite_ext(self.__sprite, self.__image, _x, _y, _width/_original_width, _height/_original_height, self.__angle, self.__image_blend, self.__image_alpha);
+						var _xscale = _width/_original_width;
+						var _yscale = _height/_original_height;
+						var _xoffset = sprite_get_xoffset(self.__sprite) * _xscale;
+						var _yoffset = sprite_get_yoffset(self.__sprite) * _yscale;				
+						_x += _xoffset;
+						_y += _yoffset;
+						draw_sprite_ext(self.__sprite, self.__image, _x, _y, _xscale, _yscale, self.__angle, self.__image_blend, self.__image_alpha);
 					}
 				}
 				

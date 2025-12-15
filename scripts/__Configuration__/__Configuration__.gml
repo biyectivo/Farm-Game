@@ -13,13 +13,16 @@
 #macro		UI_ENABLE_DEPTH							false
 	
 // Change this to Gamemaker values or sprite references if you want to use graphical cursors
-#macro		UI_CURSOR_DEFAULT						cr_default
-#macro		UI_CURSOR_INTERACT						cr_handpoint
+#macro		UI_CURSOR_DEFAULT						cursor_01
+#macro		UI_CURSOR_INTERACT						hand_open_01
 #macro		UI_CURSOR_SIZE_NWSE						cr_size_nwse
 #macro		UI_CURSOR_SIZE_NESW						cr_size_nesw
 #macro		UI_CURSOR_SIZE_NS						cr_size_ns
 #macro		UI_CURSOR_SIZE_WE						cr_size_we
-#macro		UI_CURSOR_DRAG							cr_drag
+#macro		UI_CURSOR_DRAG							hand_closed_01
+
+// Whether to let gooey manage cursors. Turn to false to handle them yourself
+#macro		UI_MANAGE_CURSORS						true
 
 // Default drill through callback functionality
 // These variables affect, per each event, whether a callback (for example, MOUSE WHEEL DOWN) is inherited from the parent if no actual callback is specified
